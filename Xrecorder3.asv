@@ -2,7 +2,7 @@ function varargout = Xrecorder3(varargin)
 % Xrecorder3 is for the setup assembled in Beijing THU-NPRC & CASIA 2023.07
 %   for recording calibrated sounds w/ :
 %       (1) G.R.A.S. microphones:
-%           46AC: High-Freq, up to 40kHz range and 20  dB(A) background and
+%           46AC: w-Freq, up to 40kHz range and 20  dB(A) background and
 %           40HL: Low-Noise, up to 20kHz range and 6.5 dB(A) background
 %       (2) G.R.A.S. microphone amplifiers 12AA
 %       (3) NI USB-4431 sound & vibration DAQ card   
@@ -10,9 +10,9 @@ function varargout = Xrecorder3(varargin)
 %       (1) Matlab R2023a and its NI DAQmx adaptor
 %       (2) NI DAQmx v23.1.0 
 %           to operate
-% Xrecorder3pre is the version w/ the old GUI (Panelette)
 % Xrecorder3pre2 is the version w/ the new GUI (Panelette3) and Mag
 %   all pre versions are w/ the 4x4 panelettes arrangement
+% Xrecorder3pre is the version w/ the old GUI (Panelette)
 % Xrecorder2 would succeed Xrecorder to
 %   (1) supports multi-channel recording
 %       w/ additional support for Sokolich probe, 
@@ -45,43 +45,29 @@ global rec
 %% Setup Parameters
 
 rec.FileNameHead =          'rec';
-rec.FileDir =               'C:\EXPERIMENTS\Ambience\';
+rec.FileDir =               'C:\EXPERIMENTS\SoundCalibration\';
 rec.RecTime =               1;
 
     i = 1;
-    % rec.MicSysOpts(i).Name =            'G.R.A.S. 46AC';
-    rec.MicSysOpts(i).Name =            'GRAS_46AC';
-    rec.MicSysOpts(i).ShortName =       'GRAS-46AC';
+    rec.MicSysOpts(i).Name =            'GRAS-46AC';
     rec.MicSysOpts(i).SN =              '560157';
     rec.MicSysOpts(i).mVperPa =         12.54;  % 12.5 claimed
     rec.MicSysOpts(i).Enable =          1;
     % rec.MicSysOpts(i).CaliChart =       CaliChart_GRAS_46AC;
 
     i = 2;
-    rec.MicSysOpts(i).Name =  		    'G.R.A.S. 40HL';
-    rec.MicSysOpts(i).Name =            'GRAS_40HL';
-    rec.MicSysOpts(i).ShortName =       'GRAS-40HL';
+    rec.MicSysOpts(i).Name =            'GRAS-40HL';
     rec.MicSysOpts(i).SN =              '519396';
     rec.MicSysOpts(i).mVperPa = 	    814.8;  % 850 claimed
     rec.MicSysOpts(i).Enable =          1;
     % rec.MicSysOpts(i).CaliChart =       CaliChart_GRAS_40HL;
-
-    % % % rec.MicSysOpts(i).Name =            'G.R.A.S. 46AC';
-    % % rec.MicSysOpts(i).Name =            'GRAS_46AC';
-    % % rec.MicSysOpts(i).ShortName =       'GRAS-46AC';
-    % % rec.MicSysOpts(i).SN =              '560157';
-    % % rec.MicSysOpts(i).mVperPa =         12.54;  % 12.5 claimed
-    % % rec.MicSysOpts(i).Enable =          1;
-    % % rec.MicSysOpts(i).CaliChart =       CaliChart_46AC;
 
     rec.Mic_OptionTable =   struct2table(rec.MicSysOpts);
     rec.Mic_OptionTipStr =  {[  '46AC is the wide-band option (up to 40kHz) \n',...
                                 '40HL is the low-noise option (down to 6 dB(A))\n',...
                                 '' ]}; 
 
-% rec.Amp_Name =  	        'G.R.A.S. 12AA';
-rec.Amp_Name =              'GRAS_12AA';
-rec.Amp_ShortName =         'GRAS-12AA';
+rec.Amp_Name =              'GRAS-12AA';
 rec.Amp_SN =                '457825';
 rec.Amp_InputPorts =        {   'A',        'B'     };
 rec.Amp_GainOptions =       [   -20         0,          20,         40      ];
@@ -117,7 +103,7 @@ i = 2;
 %% Setup GUI
 rec.UI.ColorTheme = 'norm';     %   'dark'
 % rec.UI.M =          1.5;          %   GUI Magnification
-rec.UI.M =          1.0;          %   GUI Magnification
+rec.UI.M =          2.0;          %   GUI Magnification
 SetupFigureRec;
 
 %% Setup Callbacks
@@ -353,7 +339,7 @@ function RecordStart
     rec.Save.Mic_Name =     cell(0);
     rec.Save.Mic_SN =       cell(0);
     rec.Save.Mic_mVperPa =  [];
-    rec.Save.Amp_Name =     rec.Amp_ShortName;
+    rec.Save.Amp_Name =     rec.Amp_Name;
     rec.Save.Amp_SN =       rec.Amp_SN;
     rec.Save.Amp_Filter =   rec.Amp_FilterOptions{rec.Amp_FilterOptNum};
     rec.Save.Amp_Mode =     cell(0);
@@ -375,7 +361,7 @@ function RecordStart
         else
             rec.Save.Mic_Enable(    end+1) = rec.MicSysOpts(i).Enable;
             rec.Save.Mic_SysNum(    end+1) = i;
-            rec.Save.Mic_Name{      end+1} = rec.MicSysOpts(i).ShortName;
+            rec.Save.Mic_Name{      end+1} = rec.MicSysOpts(i).Name;
             rec.Save.Mic_SN{        end+1} = rec.MicSysOpts(i).SN;
             rec.Save.Mic_mVperPa(   end+1) = rec.MicSysOpts(i).mVperPa;
             rec.Save.Amp_Mode{      end+1} = rec.Amp_DirectMode{rec.Ch(i).AmpModeOptNum};
@@ -510,7 +496,7 @@ function RecordPlot
         rec.Plot.s_dBSPL1Hz_comp =   s_dBSPL1Hz_Mic;
         for i = 1:length(rec.Save.Mic_SysNum)
             eval([  'rec.MicSysOpts(i).CaliChart = CaliChart_',...
-                    replace(rec.Save.Mic_Name{i}, '-', '_') ]);
+                    replace(rec.Save.Mic_Name{i}, '-', '_') ';']);
             t.MicCV{i} =    interp1(rec.MicSysOpts(i).CaliChart.Freq, ...
                                     rec.MicSysOpts(i).CaliChart.FreeField,...
                                     rec.Plot.s_Freq, ...
@@ -626,13 +612,15 @@ function RecordPlot
             'Toolbar',              [],...
             'NextPlot',             'add');
     j = 1;
+    rec.UI.H.hPtemp = [];
+    t.MicNames = {};
 	for i = 1:rec.Save.Mic_SysTotal
-        t.MicNames = 
         if rec.Save.Mic_Enable(i)
-        rec.UI.H.hTemp(j) = ...
+        rec.UI.H.hPtemp(j) = ...
         plot(rec.Save.Waveform(:,i)/rec.Save.DAQ_DR,...
             'LineWidth',            0.50*rec.UI.M,...
             'Color',                t.LineRawDataSubColor(rec.Save.Mic_SysNum(i),:));
+        t.MicNames{j} = rec.Save.Mic_Name{i};
         j = j + 1;
         end
 	end
@@ -661,7 +649,8 @@ function RecordPlot
         	'FontSize',             t.FigureFontSize,...
             'VerticalAlignment', 	t.AxesTempYLabelV,...
             'Interactions',         []);
-	legend( rec.UI.H.hTemp, rec.Save.Mic_Name(rec.Save.Mic_Enable),...
+    % rec.UI.H.hPtemp
+	legend( rec.UI.H.hPtemp, t.MicNames,...
             'Location',             t.AxesTempLegLocation,...
             'Box',                  'off');
     if isfield(rec.Save, 'filename')
@@ -676,12 +665,16 @@ function RecordPlot
             'FontSize',             t.FigureFontSize,...
             'Toolbar',              [],...
             'NextPlot',             'add');
+    j = 1;
 	for i = 1:rec.Save.Mic_SysTotal
+        if rec.Save.Mic_Enable(i)
 %         plot(rec.Plot.s_Freq, rec.Plot.s_dBSPL_comp(:,i),...
 %             'Color',                t.LineRawDataSubColor(rec.Save.Mic_SysNum(i),:));    % t.LineSpecNoiseRColor); 
         plot(rec.Plot.s_Freq1Hz, rec.Plot.s_dBSPL1Hz_comp(:,i),...
-            'LineWidth',            0.25*rec.UI.M,...
+            'LineWidth',            0.1*rec.UI.M,...
             'Color',                t.LineRawDataSubColor(rec.Save.Mic_SysNum(i),:));    % t.LineSpecNoiseRColor);
+        j = j + 1;
+        end
 	end
     set(gca,...
             'Xlim',                 t.AxesSpecXLim,...
@@ -690,20 +683,25 @@ function RecordPlot
             'XGrid',              	'on',...
             'YGrid',              	'on',...
             'XScale',               'log');  
-        % Marmoset audiogram
-        plot(rec.Marmoset.AudiogramFreq, rec.Marmoset.AudiogramLevel,...
+    % Marmoset audiogram
+    plot(rec.Marmoset.AudiogramFreq, rec.Marmoset.AudiogramLevel,...
             'Color',            	t.LineSpecAudiogColor,...
             'LineWidth',            t.LineSpecAudiogLineWidth);
-        % Marmoset ERB weighted noise
-        rec.curve.Freq =    s_FreqERB;
-        rec.curve.dBSPL =   s_ERB_dbspl;
-        disp(['max peak on the ERB weighted level is ', num2str(max(rec.curve.dBSPL)), ' dB SPL']);
-        for i = 1:rec.Save.Mic_SysTotal
-            rec.UI.H.hPerb(i) = plot(s_FreqERB, s_ERB_dbspl(:,i),...
+    % Marmoset ERB weighted noise
+    rec.curve.Freq =    s_FreqERB;
+    rec.curve.dBSPL =   s_ERB_dbspl;
+    disp(['max peak on the ERB weighted level is ', num2str(max(rec.curve.dBSPL)), ' dB SPL']);
+    j = 1;
+    rec.UI.H.hPerb = [];
+    for i = 1:rec.Save.Mic_SysTotal
+        if rec.Save.Mic_Enable(i)
+            rec.UI.H.hPerb(j) = plot(s_FreqERB, s_ERB_dbspl(:,i),...
             'LineWidth',            0.75*rec.UI.M,...
             'Color',             	t.LineSpecEqNoiseSubColor(rec.Save.Mic_SysNum(i),:));
+            j = j + 1;
         end
-	legend( rec.UI.H.hPerb, rec.Save.Mic_Name,...
+    end
+	legend( rec.UI.H.hPerb, t.MicNames,...
             'Location',             t.AxesTempLegLocation,...
             'Box',                  'off');
     % Spectrum more
@@ -750,6 +748,7 @@ function RecordSave
     tt = [...
         'Mic_SysTotal: ',   num2str(          rec.Save.Mic_SysTotal),   '; ',...
         'Mic_SysNum: ',     sprintf('%d, ',   rec.Save.Mic_SysNum),     '; ',...
+        'Mic_Enable: ',     sprintf('%d, ',   rec.Save.Mic_Enable),     '; ',...
         'Mic_Name: ',       strjoin(          rec.Save.Mic_Name, ', '), '; ',...
         'Mic_SN: ',         strjoin(          rec.Save.Mic_SN, ', '),   '; ',...
         'Mic_mVperPa: ',    sprintf('%5.1f, ',rec.Save.Mic_mVperPa),    '; ',...  
@@ -785,6 +784,7 @@ function RecordLoad
         switch t.curstrsplts{1}
             case 'Mic_SysTotal';rec.Save.Mic_SysTotal = str2double(t.curstrsplts{2});
             case 'Mic_SysNum';  rec.Save.Mic_SysNum =   str2double(strsplit(t.curstrsplts{2}, ', '));
+            case 'Mic_Enable';  rec.Save.Mic_Enable =   str2double(strsplit(t.curstrsplts{2}, ', '));
             case 'Mic_Name';    rec.Save.Mic_Name=      strsplit(  t.curstrsplts{2}, ', ');
             case 'Mic_SN';      rec.Save.Mic_SN =       strsplit(  t.curstrsplts{2}, ', ');
             case 'Mic_mVperPa'; rec.Save.Mic_mVperPa =  str2double(strsplit(t.curstrsplts{2}, ', ')); 

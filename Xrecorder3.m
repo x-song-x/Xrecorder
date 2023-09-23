@@ -10,9 +10,9 @@ function varargout = Xrecorder3(varargin)
 %       (1) Matlab R2023a and its NI DAQmx adaptor
 %       (2) NI DAQmx v23.1.0 
 %           to operate
-% Xrecorder3pre is the version w/ the old GUI (Panelette)
 % Xrecorder3pre2 is the version w/ the new GUI (Panelette3) and Mag
 %   all pre versions are w/ the 4x4 panelettes arrangement
+% Xrecorder3pre is the version w/ the old GUI (Panelette)
 % Xrecorder2 would succeed Xrecorder to
 %   (1) supports multi-channel recording
 %       w/ additional support for Sokolich probe, 
@@ -43,63 +43,43 @@ clear all
 global rec
 
 %% Setup Parameters
-
 rec.FileNameHead =          'rec';
-rec.FileDir =               'C:\EXPERIMENTS\Ambience\';
+rec.FileDir =               'C:\EXPERIMENTS\SoundCalibration\';
 rec.RecTime =               1;
 
     i = 1;
-    % rec.MicSysOpts(i).Name =            'G.R.A.S. 46AC';
     rec.MicSysOpts(i).Name =            'GRAS_46AC';
-    rec.MicSysOpts(i).ShortName =       'GRAS-46AC';
     rec.MicSysOpts(i).SN =              '560157';
     rec.MicSysOpts(i).mVperPa =         12.54;  % 12.5 claimed
     rec.MicSysOpts(i).Enable =          1;
-    % rec.MicSysOpts(i).CaliChart =       CaliChart_GRAS_46AC;
 
     i = 2;
-    % rec.MicSysOpts(i).Name =  		    'G.R.A.S. 40HL';
     rec.MicSysOpts(i).Name =            'GRAS_40HL';
-    rec.MicSysOpts(i).ShortName =       'GRAS-40HL';
     rec.MicSysOpts(i).SN =              '519396';
     rec.MicSysOpts(i).mVperPa = 	    814.8;  % 850 claimed
     rec.MicSysOpts(i).Enable =          1;
-    % rec.MicSysOpts(i).CaliChart =       CaliChart_GRAS_40HL;
-
-    % % rec.MicSysOpts(i).Name =            'G.R.A.S. 46AC';
-    % rec.MicSysOpts(i).Name =            'GRAS_46AC';
-    % rec.MicSysOpts(i).ShortName =       'GRAS-46AC';
-    % rec.MicSysOpts(i).SN =              '560157';
-    % rec.MicSysOpts(i).mVperPa =         12.54;  % 12.5 claimed
-    % rec.MicSysOpts(i).Enable =          1;
-    % % rec.MicSysOpts(i).CaliChart =       CaliChart_GRAS_46AC;
 
     rec.Mic_OptionTable =   struct2table(rec.MicSysOpts);
     rec.Mic_OptionTipStr =  {[  '46AC is the wide-band option (up to 40kHz) \n',...
-                                '40HL is the low-noise option (down to 6 dB(A))\n',...
-                                '' ]}; 
+                                '40HL is the low-noise option (down to 6 dB(A))\n'  ]}; 
 
-% rec.Amp_Name =  	        'G.R.A.S. 12AA';
 rec.Amp_Name =              'GRAS_12AA';
-rec.Amp_ShortName =         'GRAS-12AA';
 rec.Amp_SN =                '457825';
 rec.Amp_InputPorts =        {   'A',        'B'     };
-rec.Amp_GainOptions =       [   -20         0,          20,         40      ];
 rec.Amp_GainStr =           {   '-20 dB',   '0 dB',     '20 dB',    '40 dB' };
+rec.Amp_GainOptions =       [   -20         0,          20,         40      ];
 rec.Amp_GainNum =           [   0.1         1           10          100     ];
 rec.Amp_DirectMode =        {   'Direct',   'Amplifier'     ''};
 rec.Amp_FilterOptions =     {   'Linear',   'HighPass',     'A-weighting'   };
 rec.Amp_FilterOptNum =      1;
 
-% rec.DAQ_CardName =          'NI USB-4431';  % 'NI card device's full name
-rec.DAQ_CardName =          'USB-4431';     % 'NI card device's full name
-rec.DAQ_Card =              'USB-4431';     % 'NI card device name in DAQmx
-rec.DAQ_ai_ChOpts =         [   0       1       2       3       ];
+rec.DAQ_CardName =          'USB-4431';     % NI card device name in DAQmx
 rec.DAQ_ai_ChStr =          {   'ai0',  'ai1',  'ai2',  'ai3'   }';
+rec.DAQ_ai_ChOpts =         [   0       1       2       3       ];
 rec.DAQ_SR =                100e3;      % Sampling rate
 rec.DAQ_UR =                5;          % Update rate
-rec.DAQ_DR =                10;         % Dynamic range
-rec.DAQ_mx_adaptor =        'matlab';   % or 'scanimage'
+rec.DAQ_DR =                10;         % Dynamic range (fixed for USB-4431)
+rec.DAQ_mx_adaptor =        'matlab';   % or 'scanimage' (TBD)
 
 i = 1;
     rec.Ch(i).Name =            rec.Amp_InputPorts{i};
@@ -114,10 +94,13 @@ i = 2;
     rec.Ch(i).AmpModeOptNum =   2;
     rec.Ch(i).AmpGainOptNum =   3;
     rec.Ch(i).DAQaiChOptNum =   2;
+
 %% Setup GUI
-rec.UI.ColorTheme = 'norm';     %   'dark'
-% rec.UI.M =          1.5;          %   GUI Magnification
-rec.UI.M =          2.0;          %   GUI Magnification
+% rec.UI.ColorTheme = 'norm';     %   'dark'
+rec.UI.ColorTheme = 'dark';     %   'dark'
+% rec.UI.M =          1.0;        %   GUI Magnification
+% rec.UI.M =          1.5;        %   GUI Magnification
+rec.UI.M =          2.0;        %   GUI Magnification
 SetupFigureRec;
 
 %% Setup Callbacks
@@ -353,13 +336,13 @@ function RecordStart
     rec.Save.Mic_Name =     cell(0);
     rec.Save.Mic_SN =       cell(0);
     rec.Save.Mic_mVperPa =  [];
-    rec.Save.Amp_Name =     rec.Amp_ShortName;
+    rec.Save.Amp_Name =     rec.Amp_Name;
     rec.Save.Amp_SN =       rec.Amp_SN;
     rec.Save.Amp_Filter =   rec.Amp_FilterOptions{rec.Amp_FilterOptNum};
     rec.Save.Amp_Mode =     cell(0);
     rec.Save.Amp_Port =     cell(0);
     rec.Save.Amp_GainNum =  [];  
-    rec.Save.DAQ_Dev =      rec.DAQ_Card;
+    rec.Save.DAQ_Dev =      rec.DAQ_CardName;
     rec.Save.DAQ_SR =       rec.DAQ_SR;
     rec.Save.DAQ_DR =  	    rec.DAQ_DR;
     rec.Save.DAQ_aiCh =     [];  
@@ -375,7 +358,7 @@ function RecordStart
         else
             rec.Save.Mic_Enable(    end+1) = rec.MicSysOpts(i).Enable;
             rec.Save.Mic_SysNum(    end+1) = i;
-            rec.Save.Mic_Name{      end+1} = rec.MicSysOpts(i).ShortName;
+            rec.Save.Mic_Name{      end+1} = rec.MicSysOpts(i).Name;
             rec.Save.Mic_SN{        end+1} = rec.MicSysOpts(i).SN;
             rec.Save.Mic_mVperPa(   end+1) = rec.MicSysOpts(i).mVperPa;
             rec.Save.Amp_Mode{      end+1} = rec.Amp_DirectMode{rec.Ch(i).AmpModeOptNum};
@@ -399,7 +382,7 @@ function RecordStart
     % search for the recording device
     devall = daqlist("ni");
     for i = 1:size(devall,1)
-        if strcmp(devall{i,3}, rec.DAQ_Card)
+        if strcmp(devall{i,3}, rec.DAQ_CardName)
             rec.DAQ_DeviceID = devall{i,1};
         end
     end
@@ -509,8 +492,9 @@ function RecordPlot
         rec.Plot.s_dBSPL_comp =      s_dBSPL_Mic;
         rec.Plot.s_dBSPL1Hz_comp =   s_dBSPL1Hz_Mic;
         for i = 1:length(rec.Save.Mic_SysNum)
-            eval([  'rec.MicSysOpts(i).CaliChart = CaliChart_',...
-                    replace(rec.Save.Mic_Name{i}, '-', '_') ';']);
+            % eval([  'rec.MicSysOpts(i).CaliChart = CaliChart_',...
+            %         replace(rec.Save.Mic_Name{i}, '-', '_') ';']);
+            eval([  'rec.MicSysOpts(i).CaliChart = CaliChart_', rec.Save.Mic_Name{i}, ';']);
             t.MicCV{i} =    interp1(rec.MicSysOpts(i).CaliChart.Freq, ...
                                     rec.MicSysOpts(i).CaliChart.FreeField,...
                                     rec.Plot.s_Freq, ...
