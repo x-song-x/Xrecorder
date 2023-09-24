@@ -42,6 +42,13 @@ function InitializeTASKS
 clear all
 global rec
 
+%% Setup GUI
+% rec.UI.ColorTheme = 'norm';     %   'dark'
+rec.UI.ColorTheme = 'dark';     %   'dark'
+% rec.UI.M =          1.0;        %   GUI Magnification
+% rec.UI.M =          1.5;        %   GUI Magnification
+rec.UI.M =          2.0;        %   GUI Magnification
+
 %% Setup Parameters
 rec.FileNameHead =          'rec';
 rec.FileDir =               'C:\EXPERIMENTS\SoundCalibration\';
@@ -95,12 +102,7 @@ i = 2;
     rec.Ch(i).AmpGainOptNum =   3;
     rec.Ch(i).DAQaiChOptNum =   2;
 
-%% Setup GUI
-% rec.UI.ColorTheme = 'norm';     %   'dark'
-rec.UI.ColorTheme = 'dark';     %   'dark'
-% rec.UI.M =          1.0;        %   GUI Magnification
-% rec.UI.M =          1.5;        %   GUI Magnification
-rec.UI.M =          2.0;        %   GUI Magnification
+%% Generate the GUI
 SetupFigureRec;
 
 %% Setup Callbacks
@@ -618,7 +620,7 @@ function RecordPlot
         plot(rec.Save.Waveform(:,i)/rec.Save.DAQ_DR,...
             'LineWidth',            0.50*rec.UI.M,...
             'Color',                t.LineRawDataSubColor(rec.Save.Mic_SysNum(i),:));
-        t.MicNames{j} = rec.Save.Mic_Name{i};
+        t.MicNames{j} = replace(rec.Save.Mic_Name{i}, '_', '-');
         j = j + 1;
         end
 	end
